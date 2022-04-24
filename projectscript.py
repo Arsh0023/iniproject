@@ -2,10 +2,10 @@ import os
 import pwd
 import grp
 import configparser
+import datetime as dt
 
 config = configparser.ConfigParser()
 config.read('project.ini')
-
 
 try:
     output_path = config['PATHS']['OUTPUT_PATH']
@@ -61,7 +61,38 @@ def system_accounts():
     pass
 
 def system_logs():
-    pass
+    try:
+        start_time_str = config['FILTER_LOGS']['logTimeFrom']
+        end_time_str = config['FILTER_LOGS']['logTimeTo']
+        max_lines = config['FILTER_LOGS']['logMaxLines']
+        log_type = config['FILTER_LOGS']['logCriteria']
+        rev = config['FILTER_LOGS']['sortLogsReverse']
+    except Exception as e:
+        print(e)
+        raise(Exception('Logs Config Not Valid !'))
+
+    os.system(f'tail -n{max_lines} /var/log/{log_type} >> {os.getcwd()}/temp.txt')
+
+    logs = open('temp.txt','r').readlines()
+    start_time = dt.datetime.strptime(start_time_str,'%b %d %H:%M:%S')
+    end_time = dt.datetime.strptime(end_time_str,'%b %d %H:%M:%S')
+    
+    result = []
+    for line in logs:
+        timestamp_str = line[:15]
+        timestamp = dt.datetime.strptime(timestamp_str,'%b %d %H:%M:%S')
+        if timestamp >= start_time and timestamp <= end_time:
+            result.append(line)
+
+    if rev == 'True':
+        result.reverse()
+
+    for i in result:
+        print(i)
+    
+    os.remove('temp.txt')
+
+    return result
 
 def generate_report():
     pass
