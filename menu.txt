@@ -1,0 +1,7 @@
+Selection---
+
+1 System accounts
+2 System logs
+3 Generate Report
+
+Press Enter to exit 
