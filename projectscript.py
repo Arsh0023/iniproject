@@ -7,13 +7,6 @@ import datetime as dt
 config = configparser.ConfigParser()
 config.read('project.ini')
 
-try:
-    output_path = config['PATHS']['OUTPUT_PATH']
-except KeyError:
-    output_path = os.getcwd()
-
-print(output_path)
-
 def system_accounts():
     try:
         inp = '\nUsers : Groups\n\n'
@@ -95,7 +88,27 @@ def system_logs():
     return result
 
 def generate_report():
-    pass
+    try:
+        file_name = config['BASIC']['outFile']+'.txt'
+    except:
+        file_name = f'output{dt.date.today()}.txt'
+
+    with open(file_name,'a') as file:
+        os.system(f'echo "Machine Name : `hostname`" >> {file_name}')
+        file.write(f'Todays at {dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}\n')
+    
+        acc = system_accounts()
+        logs = system_logs()
+
+        for a in acc:
+            file.write(a)
+        
+        file.write('\nLOGS\n\n')
+
+        for l in logs:
+            file.write(l)
+
+        os.system('clear')
 
 if __name__ == '__main__':
     menu = open('menu.txt','r').read()
